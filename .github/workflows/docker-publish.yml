@@ -16,7 +16,7 @@ on:
 
 env:
   IMAGE_LOWERCASE_NAME: fl-bench
-  IMAGE_LOWERCASE_OWNER: karhoutam
+  IMAGE_LOWERCASE_OWNER: wittenator
   GITHUB_REGISTRY: ghcr.io
   ALIYUN_REGISTRY: registry.cn-hangzhou.aliyuncs.com
   IMAGE_TAG: master
