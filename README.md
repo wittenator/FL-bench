@@ -16,7 +16,7 @@
     <img alt="GitHub Repo forks" src="https://img.shields.io/github/forks/KarhouTam/FL-bench?style=for-the-badge&logo=github&color=8386e0">
   </a>
 </p>
-   -->
+-->
 <h4 align="center"><i>
 
 Benchmarking Federated Learning Methods.
