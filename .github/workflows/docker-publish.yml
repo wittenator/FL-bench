@@ -20,6 +20,7 @@ env:
   GITHUB_REGISTRY: ghcr.io
   ALIYUN_REGISTRY: registry.cn-hangzhou.aliyuncs.com
   IMAGE_TAG: master
+  
 
 jobs:
   build-image:
