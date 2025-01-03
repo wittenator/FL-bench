@@ -16,11 +16,6 @@ env:
   IMAGE_TAG: master
 
 jobs:
-  - name: Downcase env variables
-    run: |
-      echo "IMAGE_LOWERCASE_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
-      echo "IMAGE_LOWERCASE_OWNER=${GITHUB_ACTOR@L}" >> "${GITHUB_ENV}"
-
   build-image:
     name: Build Docker Image
     runs-on: ubuntu-latest
@@ -30,6 +25,11 @@ jobs:
       id-token: write
 
     steps:
+      - name: Downcase env variables
+        run: |
+          echo "IMAGE_LOWERCASE_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+          echo "IMAGE_LOWERCASE_OWNER=${GITHUB_ACTOR@L}" >> "${GITHUB_ENV}"
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
