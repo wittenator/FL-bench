@@ -2,21 +2,19 @@ name: Docker Image Publish
 
 on:
   push:
-    branches:
+    pull_request:
+      branches: 
       - master
     paths:
       - ".env/**"
       - ".github/workflows/docker-publish.yml"
 
 env:
-  IMAGE_LOWERCASE_NAME: fl-bench
-  IMAGE_LOWERCASE_OWNER: karhoutam
   GITHUB_REGISTRY: ghcr.io
-  ALIYUN_REGISTRY: registry.cn-hangzhou.aliyuncs.com
   IMAGE_TAG: master
 
 jobs:
-  build-image:
+  build-docker-image:
     name: Build Docker Image
     runs-on: ubuntu-latest
     permissions:
@@ -25,35 +23,10 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Downcase env variables
+        run: |
+          echo "IMAGE_LOWERCASE_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # https://github.com/docker/build-push-action
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: .env/Dockerfile
-          push: false
-          tags: |
-            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_OWNER }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
-            ${{ env.ALIYUN_REGISTRY }}/${{ env.IMAGE_LOWERCASE_OWNER }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
-          cache-to: type=gha,mode=max
-
-  push-ghcr:
-    name: Push to ghcr
-    needs: build-image
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-
-    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -67,46 +40,59 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image to ghcr.io
+      # https://github.com/docker/build-push-action
+      - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: .env/Dockerfile
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_OWNER }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
+          cache-to: type=gha,mode=max
           cache-from: type=gha
+  
+  build-apptainer-image:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+    name: Build Apptainer image
+    permissions:
+        contents: read
+        packages: write
+    container:
+        image: quay.io/singularity/singularity:v4.1.0
+        options: --privileged
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: true
+          
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
-  # push-aliyun:
-  #   name: Push to aliyun
-  #   needs: build-image
-  #   runs-on: ubuntu-latest
+      - name: Downcase env variables
+        shell: bash
+        run: |
+          echo "IMAGE_LOWERCASE_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+          
+      - name: Check out code for the container build
+        uses: actions/checkout@v4
 
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #     id-token: write
+      - name: Build Container
+        run: |
+           singularity build apptainer.sif .env/apptainer.def
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
+      - name: Login and Deploy Container
+        run: |
+           echo ${{ secrets.GITHUB_TOKEN }} | singularity registry login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
+           singularity push apptainer.sif oras://${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_NAME }}:apptainer-${{ env.IMAGE_TAG }}
 
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
-
-  #     - name: Log into aliyun
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ${{ env.ALIYUN_REGISTRY }}
-  #         username: ${{ secrets.ALIYUN_USERNAME }}
-  #         password: ${{ secrets.ALIYUN_TOKEN }}
-
-  #     - name: Push image to aliyun
-  #       uses: docker/build-push-action@v6
-  #       with:
-  #         context: .
-  #         file: .env/Dockerfile
-  #         push: true
-  #         tags: |
-  #           ${{ env.ALIYUN_REGISTRY }}/${{ env.IMAGE_LOWERCASE_OWNER }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
-  #         cache-from: type=gha

@@ -76,7 +76,10 @@ class FedAvgServer:
 
         self.output_dir = Path(HydraConfig.get().runtime.output_dir)
         with open(
-            FLBENCH_ROOT / "data" / self.args.dataset.name / "args.json", "r"
+            FLBENCH_ROOT / "data" / self.args.dataset.name / "args.json"
+            if args.dataset.split_args_hash is not None else
+            FLBENCH_ROOT / "data" / self.args.dataset.name / args.dataset.split_args_hash / "args.json"
+            , "r"
         ) as f:
             self.args.dataset.update(DictConfig(json.load(f)))
 
@@ -84,6 +87,8 @@ class FedAvgServer:
         try:
             partition_path = (
                 FLBENCH_ROOT / "data" / self.args.dataset.name / "partition.pkl"
+                if args.dataset.split_args_hash is not None else
+                FLBENCH_ROOT / "data" / self.args.dataset.name / args.dataset.split_args_hash / "partition.pkl"
             )
             with open(partition_path, "rb") as f:
                 self.data_partition = pickle.load(f)
