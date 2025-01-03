@@ -59,14 +59,14 @@ jobs:
         contents: read
         packages: write
     container:
-        image: quay.io/singularity/singularity:v4.1.0
+        image: quay.io/singularity/singularity:latest
         options: --privileged
     steps:
       - name: Downcase env variables
         run: |
           echo "IMAGE_LOWERCASE_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
           echo "IMAGE_LOWERCASE_OWNER=${GITHUB_ACTOR@L}" >> "${GITHUB_ENV}"
-          
+
       - name: Check out code for the container build
         uses: actions/checkout@v4
 
