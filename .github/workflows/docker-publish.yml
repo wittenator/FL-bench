@@ -50,6 +50,7 @@ jobs:
           tags: |
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
           cache-to: type=gha,mode=max
+          cache-from: type=gha
   
   build-apptainer-image:
     needs: build-docker-image
@@ -62,6 +63,22 @@ jobs:
         image: quay.io/singularity/singularity:v4.1.0
         options: --privileged
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Downcase env variables
         shell: bash
         run: |
