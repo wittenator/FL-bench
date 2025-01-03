@@ -13,7 +13,7 @@ def flower_partition(
     label_set: set,
     client_num: int,
     flower_partitioner_class: str,
-    flower_partitioner_kwargs: str,
+    flower_partitioner_kwargs: dict,
     partition: dict,
     stats: dict,
 ):
@@ -24,7 +24,6 @@ def flower_partition(
     # Create a Hugging Face Dataset
     dataset = datasets.Dataset.from_dict(data)
 
-    flower_partitioner_kwargs = json.loads(flower_partitioner_kwargs)
     partitioner_class = partitioner_class_from_flwr_datasets(flower_partitioner_class)
     partitioner = partitioner_class(
         num_partitions=client_num, **flower_partitioner_kwargs
