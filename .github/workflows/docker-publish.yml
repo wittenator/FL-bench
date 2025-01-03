@@ -14,7 +14,7 @@ env:
   IMAGE_TAG: master
 
 jobs:
-  build-image:
+  build-docker-image:
     name: Build Docker Image
     runs-on: ubuntu-latest
     permissions:
@@ -51,4 +51,27 @@ jobs:
           tags: |
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_OWNER }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
           cache-to: type=gha,mode=max
+  
+  build-apptainer-image:
+    runs-on: ubuntu-latest
+    name: Build Apptainer image
+    permissions:
+        contents: read
+        packages: write
+    steps:
+      - name: Install Apptainer
+        uses: uw-psych/apptainer-actions/setup@main
+
+      - name: Clear disk space
+        uses: uw-psych/apptainer-actions/make-disk-space@main
+
+      - name: Check out code for the container build
+        uses: actions/checkout@v4
+
+      - name: Build and push Apptainer image
+        uses: uw-psych/apptainer-actions/build-and-push@main
+        with:
+          deffile: .env/apptainer.def
+          image-url: ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_OWNER }}/${{ env.IMAGE_LOWERCASE_NAME }}
+          image-version: ${{ env.IMAGE_TAG }}
 
