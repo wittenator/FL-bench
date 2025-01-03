@@ -26,7 +26,7 @@ jobs:
       - name: Downcase env variables
         run: |
           echo "IMAGE_LOWERCASE_NAME=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
-          echo "IMAGE_LOWERCASE_OWNER=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+          echo "IMAGE_LOWERCASE_OWNER=${GITHUB_ACTOR,,}" >>${GITHUB_ENV}
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
       - name: Downcase env variables
         run: |
           echo "IMAGE_LOWERCASE_NAME=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
-          echo "IMAGE_LOWERCASE_OWNER=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+          echo "IMAGE_LOWERCASE_OWNER=${GITHUB_ACTOR,,}" >>${GITHUB_ENV}
           
       - name: Check out code for the container build
         uses: actions/checkout@v4
