@@ -78,5 +78,5 @@ jobs:
       - name: Login and Deploy Container
         run: |
            echo ${{ secrets.GITHUB_TOKEN }} | singularity registry login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
-           singularity push apptainer.sif oras://${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_OWNER }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
+           singularity push apptainer.sif oras://${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_LOWERCASE_NAME }}:${{ env.IMAGE_TAG }}
 
