@@ -1,5 +1,5 @@
 BootStrap: docker
-From: ubuntu:22.04
+From: ghcr.io/wittenator/fl-bench:master
 
 %post
    apt-get -y update

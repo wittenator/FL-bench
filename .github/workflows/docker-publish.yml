@@ -52,6 +52,7 @@ jobs:
           cache-to: type=gha,mode=max
   
   build-apptainer-image:
+    needs: build-docker-image
     runs-on: ubuntu-latest
     name: Build Apptainer image
     permissions:
