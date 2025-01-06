@@ -17,7 +17,10 @@ class MODE(Enum):
 
 DEFAULTS = {
     "method": "fedavg",
-    "dataset": {"name": "mnist"},
+    "dataset": {
+        "name": "mnist",
+        "split_args_hash": None,
+        },
     "model": {
         "name": "lenet5",
         "use_torchvision_pretrained_weights": True,
@@ -232,3 +235,67 @@ LR_SCHEDULERS = {
     "constant": optim.lr_scheduler.ConstantLR,
     "plateau": optim.lr_scheduler.ReduceLROnPlateau,
 }
+
+# config/config.py
+
+from dataclasses import dataclass, field
+from typing import List, Optional
+import enum
+
+DatasetName = enum.Enum('DatasetEnum', { name : name for idx, name in enumerate(NUM_CLASSES.keys())})
+
+class SplitMethod(Enum):
+    SAMPLE = "sample"
+    USER = "user"
+
+@dataclass
+class DatasetConfig:
+    # General Settings
+    dataset: DatasetName = DatasetName.femnist # type: ignore
+    iid: float = 0.0
+    client_num: int = 20
+    seed: int = 42
+    split: SplitMethod = SplitMethod.SAMPLE
+    val_ratio: float = 0.0
+    test_ratio: float = 0.25
+    plot_distribution: int = 1
+
+    # Randomly assign classes
+    classes: int = 0
+
+    # Shards
+    shards: int = 0
+
+    # Dirichlet
+    alpha: float = 0.0
+    min_samples_per_client: int = 10
+
+    # Flower partitioner
+    flower_partitioner_class: str = ""
+    flower_partitioner_kwargs: dict = field(default_factory=dict)
+
+    # For synthetic data only
+    gamma: float = 0.5
+    beta: float = 0.5
+    dimension: int = 60
+
+    # For CIFAR-100 only
+    super_class: int = 0
+
+    # For EMNIST only
+    emnist_split: str = "byclass"  # Consider using Enum if needed
+
+    # For domain generalization datasets only
+    ood_domains: Optional[List[str]] = None
+
+    # For semantic partition only
+    semantic: int = 0
+    efficient_net_type: int = 7
+    gmm_max_iter: int = 100
+    gmm_init_params: str = "random"  # Consider using Enum if needed
+    pca_components: Optional[int] = None
+    use_cuda: int = 1
+
+    # For data preparation
+    prepare: bool = False
+

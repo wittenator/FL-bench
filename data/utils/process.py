@@ -582,3 +582,60 @@ def partitioner_class_from_flwr_datasets(flower_partitioner_class: str):
         type: The loaded partitioner class.
     """
     return class_from_string(f"flwr_datasets.partitioner.{flower_partitioner_class}")
+
+def add_dataset_arguments(parser):
+    parser.add_argument(
+        "-d", "--dataset", type=str, choices=DATASETS.keys(), required=True
+    )
+    parser.add_argument("--iid", type=float, default=0.0)
+    parser.add_argument("-cn", "--client_num", type=int, default=20)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "-sp", "--split", type=str, choices=["sample", "user"], default="sample"
+    )
+    parser.add_argument("-vr", "--val_ratio", type=float, default=0.0)
+    parser.add_argument("-tr", "--test_ratio", type=float, default=0.25)
+    parser.add_argument("-pd", "--plot_distribution", type=int, default=1)
+
+    # Randomly assign classes
+    parser.add_argument("-c", "--classes", type=int, default=0)
+
+    # Shards
+    parser.add_argument("-s", "--shards", type=int, default=0)
+
+    # Dirichlet
+    parser.add_argument("-a", "--alpha", type=float, default=0)
+    parser.add_argument("-ms", "--min_samples_per_client", type=int, default=10)
+
+    # Flower partitioner
+    parser.add_argument("-fpc", "--flower_partitioner_class", type=str, default="")
+    parser.add_argument("-fpk", "--flower_partitioner_kwargs", type=str, default="{}")
+
+    # For synthetic data only
+    parser.add_argument("--gamma", type=float, default=0.5)
+    parser.add_argument("--beta", type=float, default=0.5)
+    parser.add_argument("--dimension", type=int, default=60)
+
+    # For CIFAR-100 only
+    parser.add_argument("--super_class", type=int, default=0)
+
+    # For EMNIST only
+    parser.add_argument(
+        "--emnist_split",
+        type=str,
+        choices=["byclass", "bymerge", "letters", "balanced", "digits", "mnist"],
+        default="byclass",
+    )
+
+    # For domain generalization datasets only
+    parser.add_argument("--ood_domains", nargs="+", default=None)
+
+    # For semantic partition only
+    parser.add_argument("-sm", "--semantic", type=int, default=0)
+    parser.add_argument("--efficient_net_type", type=int, default=7)
+    parser.add_argument("--gmm_max_iter", type=int, default=100)
+    parser.add_argument(
+        "--gmm_init_params", type=str, choices=["random", "kmeans"], default="random"
+    )
+    parser.add_argument("--pca_components", type=Optional[int], default=None)
+    parser.add_argument("--use_cuda", type=int, default=1)
