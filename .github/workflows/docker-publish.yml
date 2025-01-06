@@ -89,7 +89,7 @@ jobs:
 
       - name: Build Container
         run: |
-           singularity build apptainer.sif .env/apptainer.def
+           singularity build -s apptainer.sif .env/apptainer.def
 
       - name: Login and Deploy Container
         run: |
